@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>نظام مراقبة الشبكات الذكي — التقرير الفني</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+@page {
+    size: 794px 1123px;
+    margin: 0 0 46px 0;
+    @bottom-center {
+        content: counter(page);
+        font-family: 'IBM Plex Sans Arabic', sans-serif;
+        font-size: 10.5px;
+        color: #64748B;
+    }
+}
+:root {
+    --primary: #0F2A43;
+    --accent: #0891B2;
+    --accent-deep: #155E75;
+    --ink: #334155;
+    --soft: #64748B;
+    --line: #E2E8F0;
+    --surface: #F1F5F9;
+    --ok: #059669;
+    --warn: #D97706;
+    --crit: #DC2626;
+}
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 794px;
+    background: #FFFFFF;
+    color: var(--ink);
+    font-family: 'IBM Plex Sans Arabic', 'Noto Naskh Arabic', 'Tahoma', sans-serif;
+    font-size: 13.5px;
+    line-height: 1.85;
+    text-align: right;
+}
+@media screen {
+    html { height: auto; display: flex; justify-content: center; background: #E5EAF0; }
+    body { margin: 20px auto; box-shadow: 0 2px 18px rgba(15,42,67,.18); }
+}
+
+/* ---------- COVER ---------- */
+.cover {
+    width: 794px;
+    height: 1077px;   /* 1123 - 46px bottom margin box */
+    box-sizing: border-box;
+    break-after: page;
+    overflow: hidden;
+    position: relative;
+    background: #FFFFFF;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 64px 70px;
+}
+.cover .rule-top, .cover .rule-bottom {
+    position: absolute; right: 70px; left: 70px; height: 3px;
+    background: linear-gradient(270deg, var(--accent), var(--primary));
+    border-radius: 2px;
+}
+.cover .rule-top { top: 58px; }
+.cover .rule-bottom { bottom: 122px; }
+.cover .kicker {
+    font-size: 13px; font-weight: 700; letter-spacing: 3px;
+    color: var(--accent-deep); margin-bottom: 26px;
+}
+.cover h1 {
+    font-size: 46px; font-weight: 700; color: var(--primary);
+    line-height: 1.35; margin: 0 0 18px 0;
+}
+.cover .subtitle {
+    font-size: 19px; font-weight: 500; color: var(--accent-deep);
+    line-height: 1.75; margin-bottom: 14px;
+}
+.cover .tagline { font-size: 14.5px; color: var(--soft); font-style: italic; }
+.cover .meta {
+    margin-top: 46px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-right: 5px solid var(--accent);
+    border-radius: 12px;
+    padding: 26px 30px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px 34px;
+}
+.cover .meta div { font-size: 13.5px; color: var(--ink); }
+.cover .meta b { color: var(--primary); font-weight: 600; display: block; font-size: 12px; margin-bottom: 3px; color: var(--soft); }
+.cover .stack {
+    margin-top: 30px; direction: ltr; text-align: left;
+    font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: var(--soft);
+    letter-spacing: .4px;
+}
+.cover .edition {
+    position: absolute; bottom: 40px; right: 70px; left: 70px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 11.5px; color: var(--soft);
+}
+.cover .edition .dot { color: var(--accent); }
+
+/* ---------- TOC ---------- */
+.toc-page { padding: 72px 70px 40px 70px; break-after: page; }
+.toc-page .toc-kicker { font-size: 11.5px; font-weight: 700; letter-spacing: 2.5px; color: var(--accent); }
+.toc-page h2 { font-size: 27px; font-weight: 700; color: var(--primary); margin: 6px 0 8px 0; }
+.toc-page .toc-rule { height: 3px; width: 84px; background: var(--accent); border-radius: 2px; margin-bottom: 30px; }
+a.toc-row {
+    position: relative; display: flex; align-items: baseline; gap: 10px;
+    text-decoration: none; color: var(--ink);
+    padding: 7.5px 44px 7.5px 0; border-bottom: 1px dotted var(--line);
+}
+a.toc-row .t { font-weight: 600; font-size: 13.5px; color: var(--primary); }
+a.toc-row .sub { font-size: 11.5px; color: var(--soft); font-weight: 400; }
+a.toc-row::after {
+    content: attr(data-pg);
+    position: absolute; left: 0; direction: ltr;
+    font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--accent-deep);
+}
+.toc-appendix { margin-top: 22px; }
+.toc-appendix-head { font-size: 12px; font-weight: 700; letter-spacing: 2px; color: var(--soft); margin-bottom: 6px; }
+
+/* ---------- BODY ---------- */
+.main-content { padding: 64px 70px 48px 70px; }
+.chapter-header { break-after: avoid; break-inside: avoid; margin-top: 26px; }
+.chapter-header:first-child { margin-top: 0; }
+.ch-tag {
+    display: inline-block; direction: ltr; font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px; font-weight: 600; color: var(--accent-deep);
+    background: #E0F2FE; border-radius: 6px; padding: 3px 10px; letter-spacing: 1px;
+}
+.chapter-header h1 {
+    font-size: 24.5px; font-weight: 700; color: var(--primary);
+    margin: 10px 0 6px 0; line-height: 1.5;
+}
+.chapter-header .ch-rule { height: 3px; width: 74px; background: var(--accent); border-radius: 2px; margin-bottom: 18px; }
+h2 { font-size: 16.5px; font-weight: 700; color: var(--primary); margin: 24px 0 8px 0; break-after: avoid; }
+p { margin: 0 0 12px 0; text-align: justify; text-justify: inter-word; }
+b, strong { color: var(--primary); font-weight: 600; }
+.en { direction: ltr; unicode-bidi: embed; font-family: 'IBM Plex Mono', monospace; font-size: .92em; color: var(--accent-deep); }
+
+/* lists */
+ul.b { margin: 0 0 14px 0; padding: 0 18px 0 0; list-style: none; }
+ul.b li { position: relative; padding-right: 16px; margin-bottom: 7px; text-align: right; }
+ul.b li::before { content: ''; position: absolute; right: 0; top: .66em; width: 7px; height: 7px; border-radius: 2px; background: var(--accent); }
+
+/* tables */
+.tbl { break-inside: avoid; margin: 14px 0 16px 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.tbl .cap { font-size: 11.5px; color: var(--soft); padding: 8px 14px 0 14px; }
+.tbl table { width: 100%; border-collapse: collapse; font-size: 11.8px; }
+.tbl th {
+    background: var(--primary); color: #F8FAFC; font-weight: 600;
+    padding: 8px 10px; text-align: right; font-size: 11.5px;
+}
+.tbl td { padding: 7px 10px; border-top: 1px solid var(--line); vertical-align: top; }
+.tbl tr:nth-child(even) td { background: #F8FAFC; }
+.tbl .ltr { direction: ltr; text-align: left; font-family: 'IBM Plex Mono', monospace; font-size: 10.8px; color: var(--primary); }
+.tbl td.ok { color: var(--ok); font-weight: 600; }
+
+/* figures */
+.fig { break-inside: avoid; margin: 16px 0 6px 0; text-align: center; }
+.fig img { max-width: 100%; border: 1px solid var(--line); border-radius: 10px; }
+.fig .cap { font-size: 11.5px; color: var(--soft); margin-top: 7px; text-align: center; }
+
+/* code */
+.code {
+    direction: ltr; text-align: left;
+    background: var(--primary); color: #E2E8F0;
+    font-family: 'IBM Plex Mono', monospace; font-size: 11.3px; line-height: 1.7;
+    border-radius: 10px; padding: 16px 20px; margin: 12px 0 14px 0;
+    white-space: pre; overflow: hidden; break-inside: avoid;
+}
+.code .cm { color: #7DD3FC; }
+
+/* callouts */
+.note {
+    background: #E0F2FE; border: 1px solid #BAE6FD; border-right: 4px solid var(--accent);
+    border-radius: 10px; padding: 13px 18px; margin: 12px 0 14px 0; break-inside: avoid;
+    font-size: 12.8px;
+}
+.note b { color: var(--accent-deep); }
+
+/* refs */
+.refs p { font-size: 11.8px; color: var(--ink); text-align: right; direction: ltr; unicode-bidi: embed; }
+.refs p .no { font-family: 'IBM Plex Mono', monospace; color: var(--accent-deep); font-weight: 600; }
+
+/* ending */
+.ending {
+    width: 794px; height: 1077px; box-sizing: border-box;
+    break-before: page; overflow: hidden; position: relative;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    text-align: center; padding: 70px;
+}
+.ending .rule { width: 120px; height: 3px; background: var(--accent); border-radius: 2px; margin: 26px 0; }
+.ending .big { font-size: 30px; font-weight: 700; color: var(--primary); }
+.ending .sub { font-size: 14px; color: var(--soft); max-width: 480px; line-height: 2; }
+</style>
+</head>
+<body>
+
+<!-- ======================= COVER ======================= -->
+<div class="cover">
+    <div class="rule-top"></div>
+    <div class="kicker">مشروع تخرّج — التقرير الفني الشامل</div>
+    <h1>نظام مراقبة الشبكات الذكي</h1>
+    <div class="subtitle">مراقبة قائمة على بروتوكول SNMP مع محرّك عتبات وقناة تنبيه فورية عبر Telegram</div>
+    <div class="tagline">من ردّ الفعل المتأخّر إلى المراقبة الاستباقية — تحويل الحالة الداخلية الخفية لأجهزة الشبكة إلى بيانات قابلة للقياس والتنبيه</div>
+    <div class="meta">
+        <div><b>إعداد الطالب</b>[اسم الطالب] — [الرقم الجامعي]</div>
+        <div><b>إشراف</b>[اسم المشرف]</div>
+        <div><b>الجامعة</b>[اسم الجامعة]</div>
+        <div><b>الكلية / القسم</b>[الكلية — القسم]</div>
+        <div><b>العام الدراسي</b><span class="en" style="font-size:12px">2025 / 2026</span></div>
+        <div><b>درجة المشروع</b>مشروع تخرّج لنيل الإجازة</div>
+    </div>
+    <div class="stack">Cisco Packet Tracer 8.2 &bull; Python 3 &bull; SNMPv2c &bull; Telegram Bot API</div>
+    <div class="rule-bottom"></div>
+    <div class="edition">
+        <span>الإصدار <span class="en">1.0</span></span>
+        <span class="dot">&#9679;</span>
+        <span>تقرير فني — <span class="en">33</span> صفحة موثّقة بالقياس</span>
+    </div>
+</div>
+
+<!-- ======================= TOC ======================= -->
+<div class="toc-page">
+    <div class="toc-kicker">TABLE OF CONTENTS</div>
+    <h2>فهرس المحتويات</h2>
+    <div class="toc-rule"></div>
+    <a class="toc-row" data-pg="3" href="#ch1"><span class="t">الفصل الأول — المقدمة</span><span class="sub">الخلفية، طرح المشكلة، الأهداف، النطاق</span></a>
+    <a class="toc-row" data-pg="4" href="#ch2"><span class="t">الفصل الثاني — الأساس النظري: SNMP وإدارة الشبكات</span><span class="sub">FCAPS، نموذج المدير والوكيل، MIB و OID، ترميز BER</span></a>
+    <a class="toc-row" data-pg="6" href="#ch3"><span class="t">الفصل الثالث — بيئة المحاكاة وتصميم الشبكة</span><span class="sub">اختيار المنصّة، الطوبولوجيا، خطة العنونة، سياسة SNMP</span></a>
+    <a class="toc-row" data-pg="9" href="#ch4"><span class="t">الفصل الرابع — تنفيذ الشبكة في Packet Tracer</span><span class="sub">بناء ملف المختبر، تهيئة الموجّهات والمبدّلات، مستوى الخدمات</span></a>
+    <a class="toc-row" data-pg="10" href="#ch5"><span class="t">الفصل الخامس — محرّك المراقبة</span><span class="sub">snmp_lite من الصفر، الوكلاء، آلة حالات العتبات، مستقبل الـ Traps</span></a>
+    <a class="toc-row" data-pg="13" href="#ch6"><span class="t">الفصل السادس — مستوى الإشعار والتحكّم عبر Telegram</span><span class="sub">إنشاء البوت، تصميم الرسائل، الأوامر التفاعلية، الأمان</span></a>
+    <a class="toc-row" data-pg="14" href="#ch7"><span class="t">الفصل السابع — الاختبار والتحقق</span><span class="sub">المنهجية، تمرين الحوادث، زمن الكشف المقيس، التحليل</span></a>
+    <a class="toc-row" data-pg="15" href="#ch8"><span class="t">الفصل الثامن — دليل الاستخدام</span><span class="sub">التشغيل السريع، العرض التوضيحي، استعلام الأعطال، التوسعة</span></a>
+    <a class="toc-row" data-pg="17" href="#ch9"><span class="t">الفصل التاسع — الخاتمة والأعمال المستقبلية</span><span class="sub">المنجزات، الحدود، خارطة التطوير</span></a>
+    <a class="toc-row" data-pg="17" href="#refs"><span class="t">المراجع</span></a>
+    <div class="toc-appendix">
+        <div class="toc-appendix-head">الملاحق</div>
+        <a class="toc-row" data-pg="18" href="#appx"><span class="t">الملحق أ — تشغيل النظام خطوة بخطوة</span></a>
+        <a class="toc-row" data-pg="19" href="#appb"><span class="t">الملحق ب — تهيئة IOS الكاملة للموجّه R1</span></a>
+        <a class="toc-row" data-pg="19" href="#appc"><span class="t">الملحق ج — سجل تمرين الاختبار الكامل</span></a>
+    </div>
+</div>
+
+<div class="main-content">
+<!-- ======================= CH 1 ======================= -->
+<div class="chapter-header" id="ch1">
+    <span class="ch-tag">CHAPTER 01</span>
+    <h1>المقدمة</h1>
+    <div class="ch-rule"></div>
+</div>
+
+<h2>الخلفية والدافع</h2>
+<p>تحوّلت شبكات المؤسسات الحديثة من مجموعة صغيرة من الأجهزة المركزية إلى أنظمة موزّعة تمتد عبر مواقع متعددة وتحمل حِملًا حيويًّا للأعمال، وتتعطّل بطرق لا تظهر للذين يعتمدون عليها. فموجّهٌ تستنزف ذاكرته ببطء، ومنفذُ مبدّلٍ يُسقط الوصلات بصمت، ومعالجٌ يشبعه أحد العمليات الداخلية — كلّها لا تعلن عن نفسها إلا بعد وقوع العطل. وُجدت مراقبة الشبكات تحديدًا لسدّ هذه الفجوة: فهي تحوّل الحالة الداخلية الخفية لكل جهاز إلى بيانات قابلة للملاحظة والقياس والتنبيه. يبني هذا المشروع نظامًا كهذا من طرف إلى طرف، بدءًا من محاكاة شبكة مؤسسية متعددة المواقع وصولًا إلى قناة إشعار تبلغ جيب المشغّل في أقل من ثانية.</p>
+<p>الأسلوب التقليدي في تشغيل شبكة صغيرة أو متوسطة هو أسلوب ردّ الفعل. حين يبلّغ المستخدمون عن بطء تطبيقٍ ما، يسجّل المشغّل الدخول إلى كل موجّه ومبدّل بدوره، وينفّذ سلسلة من أوامر <span class="en">show</span>، ويحاول إعادة بناء ما تغيّر. يعاني هذا النمط من ثلاث نقاط ضعف بنيوية. أولًا: زمن الكشف يتوقف على ملاحظة المستخدمين للمشكلة، ما يعني أن الأعراض تكون قد بلغت حدّ الجسامة قبل أن يبدأ أي تحقيق. ثانيًا: يزداد متوسط زمن الإصلاح خطيًّا مع عدد الأجهزة، لأن انتباه المشغّل موردٌ تتابعيّ لا يتوزّع. ثالثًا: لا يُحفَظ أي سجلّ تاريخي، فلا تُربَط أنماط التدهور المتكررة ببعضها عبر الحوادث.</p>
+<p>صُمِّم بروتوكول إدارة الشبكة البسيط <span class="en">SNMP</span> لعكس هذه العلاقة. فكل جهاز مُدار يُبقي باستمرار مجموعة منظّمة من العدّادات والمقاييس — قاعدة معلومات الإدارة <span class="en">MIB</span> — ويكشفها عبر <span class="en">UDP</span> لمحطة مراقبة. ومديرٌ يستقصي هذه الكائنات كل بضع ثوانٍ، ويطبّق منطق العتبات على القيم، ويدفع التنبيهات إلى هاتف المشغّل، يحوّل الحالة الداخلية الخفية للشبكة إلى نظام إنذار فعّال. ومستويا «الأعطال» <span class="en">Fault</span> و«الأداء» <span class="en">Performance</span> من نموذج الإدارة الكلاسيكي <span class="en">FCAPS</span> — وهما ما يعالجه هذا المشروع — هما تحديدًا هاجسَي الكشف السريع عن الأعطال والتعرّف على تدهور الأداء قبل أن يصبح انقطاعًا.</p>
+
+<h2>طرح المشكلة</h2>
+<p>يجيب المشروع عن سؤال محدّد: هل يمكن مراقبة شبكة مؤسسية صغيرة محاكاة، مبنية بالأدوات المتاحة لطالب، بالصرامة الهندسية نفسها التي تتطلبها شبكة إنتاجية؟ يتحلّل السؤال إلى أربع مشكلات فرعية. يجب أولًا تصميم الشبكة نفسها وعنونتها وتهيئتها لإدارةٍ سهلة، بما فيها مجتمعات <span class="en">SNMP</span> ووجهات الـ<span class="en">Traps</span> على كل موجّه ومبدّل. وثانيًا يجب أن تتحدّث محطة المراقبة بروتوكول <span class="en">SNMP</span> على مستوى البروتوكول نفسه، لأن طالبًا يكتفي باستدعاء مكتبة جاهزة لا يستطيع أن يشرح النظام أو يدافع عنه أو يصحّحه. وثالثًا يجب أن يكبت منطقُ التنبيه الضجيجَ مع ضمان ظهور الحوادث الحقيقية بسرعة. ورابعًا يجب أن تصل قناة الإشعار إلى إنسان فورًا، على جهاز يحمله ذلك الإنسان فعلًا، لا على لوحة قيادة لا يراقبها أحد في الثانية صباحًا.</p>
+
+<h2>الأهداف</h2>
+<p>يحدّد المشروع خمسة أهداف قابلة للقياس، مقترنًا كل منها بمعيار القبول المستخدم للتحقق منه في الفصل السابع. وتغطي مجتمعةً المسار الكامل من الحالة الخام للشبكة إلى التنبيه المُسلَّم:</p>
+<ul class="b">
+<li>بناء مختبر موثَّق متعدد المواقع في <span class="en">Cisco Packet Tracer 8.2</span>: اثنا عشر جهازًا، ومثلث <span class="en">OSPF</span> في المنطقة 0 بين ثلاثة موجّهات، وفصل <span class="en">VLAN</span> في المقرّ الرئيسي، وتفعيل <span class="en">SNMP</span> على الموجّهات والمبدّلات الستة.</li>
+<li>تنفيذ <span class="en">SNMPv2c</span> على مستوى البروتوكول: مرمّز <span class="en">BER/ASN.1</span>، ومعالجة طلبات <span class="en">GET</span> و<span class="en">GETNEXT</span>، وترميز رسائل الـ<span class="en">Trap</span> وفكّها، باستخدام مكتبة <span class="en">Python</span> القياسية وحدها.</li>
+<li>تنفيذ محرّك عتبات يعمل بوصفه آلة حالات: عتبات المعالج عند <span class="en">70%</span> (تحذير) و<span class="en">85%</span> (حرج)، والذاكرة عند <span class="en">75%</span> و<span class="en">90%</span>، مع إطلاق التنبيهات عند انتقالات الحالة فقط، وإشعارات تعافٍ عند زوال الشرط.</li>
+<li>تسليم التنبيهات عبر بوت <span class="en">Telegram</span>: تنبيهات مدفوعة لكل حادث، مع أوامر تفاعلية (<span class="en">/status</span> و<span class="en">/cpu</span> و<span class="en">/ifaces</span> و<span class="en">/alerts</span> و<span class="en">/mute</span>) تستعلم حالة الأجهزة الحيّة عند الطلب.</li>
+<li>التحقق من النظام الكامل باختبارات آلية: اثنان وعشرون اختبارًا من طرف إلى طرف تغطي رزمة البروتوكول والوكلاء وتمرين الحوادث ومعالجات البوت، مع قياس زمن الكشف لكل نوع تنبيه.</li>
+</ul>
+
+<h2>النطاق والحدود</h2>
+<p>تحدّد ثلاثة حدودٍ ما لا يحاول المشروع فعله عمدًا. فالإصدار <span class="en">2c</span> من البروتوكول يصادق بسلسلة <span class="en">community</span> نصية مكشوفة؛ ويُناقَش إطار المصادقة والخصوصية الأقوى في <span class="en">SNMPv3</span> بوصفه عملًا مستقبليًا دون تنفيذ، لأن جوهر المشروع التعليمي هو ميكانيكا البروتوكول وخطّ إنابيب التنبيه. والشبكة المحاكاة: فـ<span class="en">Packet Tracer</span> يُمثّل تهيئة <span class="en">IOS</span> بأمانة لكن رزمة شبكته المحاكاة غير قابلة للوصول عبر مقابس <span class="en">UDP</span> حقيقية من عملية خارجية، لذا يتولّى مستوى البيانات الحيّ وكلاءَ مطابقين للبروتوكول يكشفون بالضبط معرّفات <span class="en">OID</span> التي يكشفها موجّه حقيقي من <span class="en">Cisco</span>. وأخيرًا العتبات قيم ثابتة في ملف تهيئة لا خطوط أساس متعلّمة؛ وبنية البيانات اللازمة لكشف الشذوذ ينتجها المحرّك فعلًا، ما يجعل تلك التوسعة مباشرة.</p>
+
+<h2>تنظيم التقرير</h2>
+<p>يطوّر الفصل الثاني الأساس النظري: نموذج <span class="en">FCAPS</span>، ومعمارية <span class="en">SNMP</span>، وبنية <span class="en">MIB</span>، وصيغة رسالة <span class="en">v2c</span> على السلك. ويعرض الفصل الثالث بيئة المحاكاة وتصميم الشبكة، بما فيها خطة العنونة وسبب كل قرار تصميمي. ويوثّق الفصل الرابع تنفيذ الشبكة داخل <span class="en">Packet Tracer</span> حتى أوامر <span class="en">IOS</span> الفعلية. ويفصّل الفصل الخامس محرّك المراقبة: بروتوكول <span class="en">SNMP</span> المكتوب من الصفر، والوكلاء المُحاكين، وآلة حالات العتبات، ومستقبل الـ<span class="en">Traps</span>. ويغطي الفصل السادس مستوى الإشعار والتحكّم عبر <span class="en">Telegram</span>. ويقدّم الفصل السابع منهجية التحقق ونتائجها المقيسة. ويقدّم الفصل الثامن دليل استخدام عمليًّا للتشغيل والاستعلام. ويختم الفصل التاسع بالمنجزات والأعمال المستقبلية، وتليها المراجع وثلاثة ملاحق تشغيلية.</p>
+
+<!-- ======================= CH 2 ======================= -->
+<div class="chapter-header" id="ch2">
+    <span class="ch-tag">CHAPTER 02</span>
+    <h1>الأساس النظري: SNMP وإدارة الشبكات</h1>
+    <div class="ch-rule"></div>
+</div>
+
+<h2>إدارة الشبكات ونموذج FCAPS</h2>
+<p>إدارة الشبكة، بمعناها الهندسي، هي مجموعة الوظائف التي تحافظ على الشبكة تعمل ضمن المستويات المتفق عليها من التوافر والأداء. يجسّدها نموذج <span class="en">FCAPS</span> — الاختصار المتّبع منذ أوائل التسعينيات — في خمس مستويات وظيفية: إدارة الأعطال <span class="en">Fault</span>، وإدارة الإعداد <span class="en">Configuration</span>، والمحاسبة <span class="en">Accounting</span>، وإدارة الأداء <span class="en">Performance</span>، وإدارة الأمن <span class="en">Security</span>. يستهدف هذا المشروع مستويي الأعطال والأداء من طرف إلى طرف: الكشف عن أعطال الوصلات والأجهزة لحظة وقوعها، والتعرّف على تدهور المعالج والذاكرة قبل بلوغه حدّ الانقطاع. أما مستويات الإعداد والمحاسبة والأمن فيوفّر المشروع لها البنيةَ الأساسية (تسجيل <span class="en">syslog</span> و<span class="en">NTP</span> وضبط community للقراءة فقط) دون أن يطوّر عليها تطبيقات مستقلة.</p>
+<p>تكمن قيمة النموذج في أنه يمنح أي نظام مراقبة مقياسَ اكتمالٍ صريحًا. فسؤال «هل يكتشف نظامك سقوط وصلة خلال ثانية؟» سؤال مستوى أعطال؛ وسؤال «هل يلتقط استنزاف الذاكرة المتدرّج قبل الانهيار؟» سؤال مستوى أداء؛ وسؤال «هل يوقّع كل عاملٍ حسّاس بسجلّ زمني؟» سؤال محاسبة جزئيًّا. بهذه التقسيمات يمكن تقويم ما بُني في هذا المشروع بلغة معيارية مفهومة لأي مهندس شبكات، لا بلغة أدوات خاصة به وحده.</p>
+
+<h2>تطوّر بروتوكول SNMP</h2>
+<p>ظهر <span class="en">SNMP</span> أوّل مرة في <span class="en">RFC 1157</span> عام 1990 بوصفه حلًّا بسيطًا لمشكلة توحيد رؤية الأجهزة المتباينة، وسرعان ما أصبح المعيار الواقعي لإدارة شبكات <span class="en">IP</span>. وسّعت <span class="en">MIB-II</span> في <span class="en">RFC 1213</span> مجموعة الكائنات القياسية، ثم قدّم جيل <span class="en">SNMPv2c</span> — المُعتمَد في هذا المشروع — صيغةً محسّنة للرسائل وعمليات جِدّية مثل <span class="en">GETBULK</span> إضافةً إلى آلية <span class="en">Trap</span> الجديدة المعرّفة في <span class="en">RFC 3416</span>. أما <span class="en">SNMPv3</span> فأضاف المصادقة والتشفير عبر نموذج الأمان <span class="en">USM</span> في <span class="en">RFC 3414</span>، وبقي للإصدار <span class="en">2c</span> موقعه التعليمي والعملي: فهو ما تفعله معظم شبكات الحرم الجامعية والمختبرات فعلًا، وصيغته على السلك أبسط ما يمكن تنفيذه بالكامل وفهمه بايتًا بايت.</p>
+
+<h2>نموذج المدير والوكيل</h2>
+<p>يقوم البروتوكول على تقسيم عمل صارم بين طرفين. <b>الوكيل</b> <span class="en">Agent</span>: برنامج صغير يعيش داخل الجهاز المُدار — موجّه أو مبدّل أو خادم — ويحافظ على قاعدة <span class="en">MIB</span>، ويستجيب لطلبات القراءة على المنفذ <span class="en">UDP 161</span>. و<b>المدير</b> <span class="en">Manager</span>: تطبيق محطة الإدارة الذي يرسل الاستقصاءات، ويستقبل الإشعارات غير المتزامنة على المنفذ <span class="en">UDP 162</span>. بينهما لا وسيط ولا حالة مشتركة: كل رسالة مستقلة قائمة بذاتها، وهذا بالضبط ما يجعل البروتوكول متينًا وسهل المحاكاة والاختبار.</p>
+<div class="fig">
+    <img src="figures/fig_snmp_model.png" alt="SNMP manager-agent model" style="max-width:620px">
+    <div class="cap">الشكل 2.1 — نموذج المدير والوكيل: مستوى الاستقصاء على المنفذ 161 ومستوى الإشعارات على المنفذ 162، والواجهة بينهما قاعدة MIB</div>
+</div>
+<p>الشكل 2.1 يلخّص المعمارية كما ينفّذها هذا المشروع: المدير على يسار الصورة يستقصي ويلتقط، والوكيل على اليمين يجيب ويدفع، وقاعدة <span class="en">MIB</span> في الوسط هي عقد الاجتماع بين الطرفين. كل ما يفعله النظام لاحقًا — عتباتٍ كان أو بوتَ <span class="en">Telegram</span> — يقف فوق هذه المعمارية ولا يغيّر فيها حرفًا.</p>
+
+<h2>قاعدة MIB ومعرّفات OID</h2>
+<p>كل كائن مُدار في <span class="en">MIB</span> يُعرَّف بمعرّف رقمي <span class="en">OID</span> — مسارٌ في شجرة هرمية تبدأ من الجذر <span class="en">iso(1)</span> ثم <span class="en">org(3)</span> ثم <span class="en">dod(6)</span> ثم <span class="en">internet(1)</span>. تحت فرع الإدارة <span class="en">mgmt(2.1)</span> تعيش الكائنات القياسية مثل زمن التشغيل <span class="en">sysUpTime</span> وحالة تشغيل الواجهة <span class="en">ifOperStatus</span>؛ وتحت الفرع الخاص <span class="en">private(4.1)</span> ثم <span class="en">enterprises(9)</span> ثم <span class="en">cisco(9)</span> تعيش كائنات الشركة مثل حمل المعالج <span class="en">cpmCPUTotal5minRev</span> واستخدام ذاكرة <span class="en">ciscoMemoryPoolUsed</span>. جدول 2.1 يعرض الكائنات التي يستقصيها المحرّك فعلًا، وهي مجموعته العاملة الكاملة: هوية الجهاز، وزمن تشغيله، وحمولة معالجه، وذاكرته، وحالة واجهاته، وعدّادات مرورها.</p>
+<div class="tbl">
+    <table>
+        <tr><th style="width:32%">الكائن (OID)</th><th style="width:15%">النوع</th><th>الدلالة والاستخدام في المشروع</th></tr>
+        <tr><td class="ltr">sysName (.1.3.6.1.2.1.1.5)</td><td>نص</td><td>هوية الجهاز — تُستخدم في تسمية كل التنبيهات والجداول</td></tr>
+        <tr><td class="ltr">sysUpTime (.1.3.6.1.2.1.1.3)</td><td>عدّاد زمني</td><td>زمن التشغيل منذ الإقلاع — يُقاس منه عمر الوكيل</td></tr>
+        <tr><td class="ltr">cpmCPUTotal5minRev (.1.3.6.1.4.1.9.9.109.1.1.1.1.8)</td><td>مقياس %</td><td>حمل المعالج خلال 5 دقائق — مدخل عتبتي 70% و85%</td></tr>
+        <tr><td class="ltr">ciscoMemoryPoolUsed (.1.3.6.1.4.1.9.9.48.1.1.1.5)</td><td>مقياس</td><td>الذاكرة المستخدمة — مدخل عتبتي 75% و90%</td></tr>
+        <tr><td class="ltr">ifOperStatus (.1.3.6.1.2.1.2.2.1.8)</td><td>عدّ</td><td>حالة تشغيل كل واجهة — 1 أعلى / 2 أسفل / 3 اختبار</td></tr>
+        <tr><td class="ltr">ifInOctets / ifOutOctets (.1.3.6.1.2.1.2.2.1.10/16)</td><td>عدّادات</td><td>بايتات الداخل والخارج — تُقرأ للتأكد من حيوية الواجهات</td></tr>
+    </table>
+    <div class="cap">الجدول 2.1 — كائنات SNMP التي يستقصيها محرّك المراقبة، بمعرّفاتها الحرفية وأنواعها</div>
+</div>
+
+<h2>الاستقصاء مقابل Traps</h2>
+<p>يتوافر للمدير مستويان مكمّلان لجمع البيانات، ويستخدم المشروع كليهما لأن كلاً منهما يعالج فئة مختلفة من الحوادث. <b>الاستقصاء</b> <span class="en">Polling</span>: يرسل المدير دوريًّا رسائل <span class="en">GET</span> و<span class="en">GETNEXT</span> كل خمس عشرة ثانية (الافتراضي الإنتاجي؛ وخمس ثوانٍ في وضع التمرين)، فيحصل على صورة متسلسلة تصلح للمقارنة مع العتبات ورسم الاتجاهات. <b>الإشعارات</b> <span class="en">Traps</span>: يدفع الوكيل رسالةً واحدة لحظة الحدث — سقوط وصلة، إقلاع بارد، تغيّر تهيئة — دون انتظار سؤال أحد. زمن الاستقصاء يقع بين صفر والفاصل الزمني، أما الـ<span class="en">Trap</span> فيصل خلال أجزاء من الثانية. القاعدة الهندسية المعتمدة هنا: الاتجاهات والإحصاءات للعتبات من الاستقصاء، والأعطال اللحظية من الـ<span class="en">Traps</span>.</p>
+
+<h2>ترميز الرسائل: BER على السلك</h2>
+<p>كل رسالة <span class="en">SNMPv2c</span> بايتاتٌ على السلك بترميز <span class="en">BER</span> — الترميز الأساسي لـ<span class="en">ASN.1</span> المعرّف في <span class="en">X.690</span>. ويتّبع كل حقل صيغة «نوع-طول-قيمة» <span class="en">TLV</span>: بايتُ نوعٍ، ثم طولٌ (بايت واحد إن قلّ عن 128 أو بايت طويل بصيغة مرتّبة)، ثم القيمة نفسها بالتسلسل الكبير للبايتات. الرسالة الكاملة سلسلة متداخلة من كتل <span class="en">TLV</span>: رسالةٌ تحتوي إصدارًا وسلسلة <span class="en">community</span> و<span class="en">PDU</span>؛ والـ<span class="en">PDU</span> بدوره يحمل طلبًا ومعرّفًا وحالة خطأ وفهارس وقائمة روابط متغيّرات <span class="en">VarBind</span>؛ وكل رابط متغيّر زوجٌ من <span class="en">OID</span> مرمّز بايتًا بايت وفقًا لقاعدة الأرقام الأربعينية، وقيمةٍ بترميز يحدّده نوعها. تنفيذ هذا الترميز من الصفر — لا استيراد مكتبة جاهزة — هو ما يجعل كل بايت يمرّ عبر النظام قابلًا للشرح أمام لجنة المناقشة، وقد وفّر حوالي عشرين اختبارًا ذهابًا وإيابًا يتحقق أن كل نوع يُرمَّز ثم يُفكّ إلى القيمة الأصلية بلا أي انحراف.</p>
+<!-- ======================= CH 3 ======================= -->
+<div class="chapter-header" id="ch3">
+    <span class="ch-tag">CHAPTER 03</span>
+    <h1>بيئة المحاكاة وتصميم الشبكة</h1>
+    <div class="ch-rule"></div>
+</div>
+
+<h2>اختيار منصّة المحاكاة</h2>
+<p>انطلق اختيار المنصّة من سؤال عملي واحد: أي بيئة تمنح طالبًا شبكةَ مؤسسةٍ متعددة المواقع مع وصولٍ كامل إلى تهيئة <span class="en">IOS</span> دون كلفة ترخيص أو عتاد؟ تتنافس على الجواب منصّتان. <span class="en">GNS3</span> يُشغّل صور <span class="en">IOS</span> الحقيقية داخل محاكاة <span class="en">Dynamips</span>، فيقدّم سلوكًا أصيلًا إلى أقصى حدّ، لكنه يتطلب توفير صور النظام — وهي مقيّدة الترخيص — ويستهلك ذاكرة كبيرة عند تعدد الموجّهات. أما <span class="en">Cisco Packet Tracer</span> فهو مجاني عبر أكاديمية شبكات <span class="en">Cisco</span> وخفيف بما يكفي لتشغيل مختبر من اثني عشر جهازًا على حاسوب محمول عادي، ويُمثّل سلوك <span class="en">IOS</span> على مستوى الوظيفة لا على مستوى الصورة الثنائية. جدول 3.1 يلخّص الموازنة التي حسمت القرار.</p>
+<div class="tbl">
+    <table>
+        <tr><th style="width:24%">المعيار</th><th style="width:38%">GNS3</th><th>Packet Tracer 8.2</th></tr>
+        <tr><td><b>التقنية</b></td><td>محاكاة بصور IOS حقيقية (Dynamips)</td><td>محاكاة على مستوى السلوك الوظيفي</td></tr>
+        <tr><td><b>الترخيص</b></td><td>يتطلب توفير صور IOS مقيّدة الترخيص</td><td>مجاني عبر Cisco Networking Academy</td></tr>
+        <tr><td><b>الاستهلاك</b></td><td>ثقيل: مئات ميغابايت RAM لكل موجّه</td><td>خفيف: مختبر كامل على حاسوب واحد</td></tr>
+        <tr><td><b>تهيئة SNMP</b></td><td>أوامر IOS كاملة أصلية</td><td>أوامر IOS كاملة ممثَّلة</td></tr>
+        <tr><td><b>الوصول من عملية Python خارجية</b></td><td>قابل للوصول عبر UDP حقيقي</td><td>رزمة محاكاة غير قابلة للوصول خارجيًّا</td></tr>
+    </table>
+    <div class="cap">الجدول 3.1 — الموازنة بين GNS3 و Packet Tracer لمشروع مراقبة طلابي</div>
+</div>
+
+<h2>الحدّ المعرفي واستجابة التصميم</h2>
+<p>يُظهر السطر الأخير من الجدول الحدَّ الذي لا يجوز إخفاؤه: ففي <span class="en">Packet Tracer</span> تُفعَّل أوامر <span class="en">snmp-server</span> وتظهر نتيجها في <span class="en">show snmp</span> كأنها <span class="en">IOS</span> حقيقي، لكن رزمة الشبكة داخل المحاكاة لا تنتمي إلى رزمة نظام التشغيل المضيف، فلا يستطيع برنامج <span class="en">Python</span> خارجي أن يرسل <span class="en">UDP</span> فعليًّا إلى موجّهٍ داخلها. كان لهذا الحدّ أثرٌ حاسم على المعمارية: فالمشروع يزاوج بين <b>مستوى تصميم الشبكة</b> — ملف <span class="en">.pkt</span> كامل يفتح في <span class="en">Packet Tracer</span> ويُدرَّس ويُفحَص — و<b>مستوى بيانات حيّ</b> من ستة وكلاء <span class="en">SNMP</span> مكتوبين بـ<span class="en">Python</span> يكشفون نفس كائنات <span class="en">Cisco</span> بنفس الـ<span class="en">community</span> ونفس مضيف الـ<span class="en">Trap</span> المرقّمة في ملف المختبر. وهكذا يُختبر كود المراقبة على بيانات حيّة تتدفّق فعلًا، بينما تبقى خطة الشبكة والتهيئة موثّقة بأمانة في الملف الذي يفتحه المقيّم. والانتقال إلى موجّهات حقيقية لاحقًا يعني تعديل عناوين النهايات في ملف <span class="en">YAML</span> واحد — لا شيء آخر.</p>
+
+<h2>الطوبولوجيا وقرارات التصميم</h2>
+<p>تحاكي الشبكة مؤسسةً بثلاثة مواقع: المقرّ الرئيسي <span class="en">HQ</span>، وموقع فرع <span class="en">Branch</span>، ونفاذ إلى مزوّد الخدمة عبر موجّه <span class="en">R4-ISP</span>. تتصل النواة بمثلث <span class="en">OSPF</span> بين <span class="en">R1</span> و<span class="en">R2</span> و<span class="en">R3</span> في المنطقة 0، وبذلك يبقى بين أي موجّهين مساران منفصلان مهما انقطعت وصلة واحدة — فلا عطلُ وصلةٍ واحدة يعزل موقعًا ولا يوقف المراقبة نفسها. ويمارس <span class="en">R3</span> التوجيه بين الشبكات المحلية الافتراضية بأسلوب <span class="en">Router-on-a-stick</span>: جذعٌ فيزيائي واحد يحمل <span class="en">VLAN 10</span> للمستخدمين و<span class="en">VLAN 20</span> للإدارة، فيفصل حِمل البشر عن حِمل الأنظمة بقرارٍ واعٍ قليل الكلفة. ويستضيف موقع المقرّ مستوى الخدمات: الخادم <span class="en">SVR-MGMT</span> الذي يقدّم <span class="en">syslog</span> و<span class="en">NTP</span> على العنوان <span class="en">192.168.20.50</span>، والحاسوب <span class="en">NMS-PC</span> الذي يمثّل محطة الإدارة على <span class="en">192.168.20.100</span> — وهو نفسه وجهة الـ<span class="en">Traps</span> في تهيئة كل جهاز.</p>
+<div class="fig">
+    <img src="figures/fig_topology.png" alt="Network topology" style="max-width:640px">
+    <div class="cap">الشكل 3.1 — طوبولوجيا المختبر: مثلث OSPF بين R1 وR2 وR3، ونفاذ R4-ISP، وفصل VLAN في المقرّ، ومستوى الخدمات في VLAN 20</div>
+</div>
+
+<h2>خطة العنونة و VLAN</h2>
+<p>صُمِّمت الخطة هرميًّا وقابلة للاختبار: وصلات النواة والنفاذ على شبكات <span class="en">/30</span> لا تحمل سوى طرفيها، ومواقع المستخدمين على <span class="en">/24</span> قابلة للتوسعة، ولكل موجّه عنوان <span class="en">loopback</span> ثابت يصلح معرّفًا له في <span class="en">OSPF</span>. يعرض الجدول 3.2 الخطة كاملةً كما هي منفّذة في ملف المختبر — وهي نفسها التي تُغيَّر في ملف <span class="en">config.yaml</span> عند الانتقال إلى عتاد حقيقي.</p>
+<div class="tbl">
+    <table>
+        <tr><th style="width:20%">المقطع</th><th style="width:8%">VLAN</th><th style="width:20%">الشبكة الفرعية</th><th style="width:17%">البوابة</th><th>الأعضاء</th></tr>
+        <tr><td>النفاذ R1 ↔ R4-ISP</td><td>—</td><td class="ltr">203.0.113.0/30</td><td>—</td><td class="ltr">R1 .1 — R4 .2</td></tr>
+        <tr><td>النواة R1 ↔ R2</td><td>—</td><td class="ltr">10.0.12.0/30</td><td>—</td><td class="ltr">R1 .1 — R2 .2</td></tr>
+        <tr><td>النواة R1 ↔ R3</td><td>—</td><td class="ltr">10.0.13.0/30</td><td>—</td><td class="ltr">R1 .1 — R3 .2</td></tr>
+        <tr><td>النواة R2 ↔ R3</td><td>—</td><td class="ltr">10.0.23.0/30</td><td>—</td><td class="ltr">R2 .1 — R3 .2</td></tr>
+        <tr><td>شبكة الفرع المحلية</td><td>1</td><td class="ltr">192.168.30.0/24</td><td class="ltr">R2 .1</td><td class="ltr">PC1 .10 — PC2 .11 — SW-Branch .5</td></tr>
+        <tr><td>مستخدمو المقرّ</td><td>10</td><td class="ltr">192.168.10.0/24</td><td class="ltr">R3 Gi0/0.10 .1</td><td class="ltr">User1 .10 — User2 .11</td></tr>
+        <tr><td>إدارة المقرّ</td><td>20</td><td class="ltr">192.168.20.0/24</td><td class="ltr">R3 Gi0/0.20 .1</td><td class="ltr">SVR-MGMT .50 — NMS-PC .100 — SW-HQ .5</td></tr>
+    </table>
+    <div class="cap">الجدول 3.2 — خطة العنونة الكاملة كما نُفِّذت في ملف المختبر؛ وعناوين الـloopback: R1‏ 1.1.1.1 · R2‏ 2.2.2.2 · R3‏ 3.3.3.3 · R4‏ 8.8.8.8</div>
+</div>
+
+<h2>تصميم سياسة SNMP</h2>
+<p>اعتُمدت سياسة واحدة موحّدة على الأجهزة الستة المُدارة قاطبةً: مجتمع قراءةٍ فقط <span class="en">MonNet-RO</span>، وموقعٌ ومسؤولٌ يظهران ككائنَي <span class="en">sysLocation</span> و<span class="en">sysContact</span> فتُثبَت هوية كل وكيل، ووجهة <span class="en">Traps</span> واحدة هي <span class="en">NMS-PC</span> بالإصدار <span class="en">2c</span> وبنفس المجتمع، وتفعيل إشعارات الوصلات والإقلاع البارد وتغيّر التهيئة. حُسم قرار «القراءة فقط» عمدًا: فمجتمعٌ بصلاحية كتابة <span class="en">RW</span> يفتح رسائل <span class="en">SET</span> — أي تعديلَ تهيئة الأجهزة عبر الشبكة — وهو استعدادُ ثغرةٍ لا تحتاجه مراقبةٌ تقرأ فقط. هذه السياسة هي التي تظهر حرفيًّا في <span class="en">show snmp</span> على أي جهاز داخل المختبر، وهي نفسها التي تكرّرها الوكلاء الستة في مستوى البيانات الحيّ.</p>
+
+<!-- ======================= CH 4 ======================= -->
+<div class="chapter-header" id="ch4">
+    <span class="ch-tag">CHAPTER 04</span>
+    <h1>تنفيذ الشبكة في Packet Tracer</h1>
+    <div class="ch-rule"></div>
+</div>
+
+<h2>هندسة ملف المختبر</h2>
+<p>بُني ملف <span class="en">Smart_Network_Monitoring_Lab.pkt</span> ليفتح في <span class="en">Packet Tracer 8.2</span> وما بعده وهو جاهزٌ تشغيليًّا بالكامل: اثنا عشر جهازًا (أربعة موجّهات <span class="en">2911</span>، ومبدّلان <span class="en">2960</span>، وخمسة حواسيب، وخادم)، واثنتا عشرة وصلة موزّعة بين النفاذ والنواة والوصول، وتهيئة <span class="en">IOS</span> كاملة تُشغَّل لحظة الفتح: التوجيه بين الشبكات بـ<span class="en">OSPF</span>، والتوجيه بين الـ<span class="en">VLAN</span> على <span class="en">R3</span>، والجذوع بين المبدّلات والموجّه، و<span class="en">SNMP</span> على كل جهاز مُدار، والخدمات على الخادم. رُتِّبت الأجهزة على لوحة الرسم في مناطق واضحة تُناظر مواقعها المنطقية، فيستطيع المقيّم قراءة الشبكة بصريًّا قبل أن يفتح أي طرفية.</p>
+
+<h2>تهيئة الموجّهات</h2>
+<p>تحمل الموجّهات الأربعة الهيكلَ التهيئيّ نفسَه، ويُختصر هنا موجّهُ النواة <span class="en">R1</span> — وتظهر تهيجته الكاملة حرفيًّا في الملحق ب. تحمل الواجهات عناوينها من الخطة، ويُعلَن عن الشبكات في <span class="en">OSPF</span> بالمنطقة 0، ويُعيَّن <span class="en">loopback</span> معرّفًا للموجّه، ثم تأتي كتلة <span class="en">SNMP</span> التي تُحوِّل الجهاز إلى مصدر بيانات:</p>
+<div class="code">snmp-server community MonNet-RO RO
+snmp-server location CORE-POP Damascus
+snmp-server contact netmon@monnet.lab
+snmp-server host 192.168.20.100 version 2c MonNet-RO
+snmp-server enable traps snmp link linkdown linkup config</div>
+<p>السطر الأول يمنح القراءة فقط؛ ولو كانت الصلاحية <span class="en">RW</span> لانفتحت رسائل <span class="en">SET</span> التي تعدّل التهيئة عبر الشبكة — وهو ما تجنّبناه عمدًا. والسطران الثاني والثالث يملآن <span class="en">sysLocation</span> و<span class="en">sysContact</span> فيُقروءا من بعيد عبر <span class="en">GET</span> ما يثبت هوية الوكيل. والسطر الرابع يوجّه كل الإشعارات إلى <span class="en">NMS-PC</span> بالإصدار <span class="en">2c</span> وبنفس المجتمع. والسطر الخامس يفعّل إشعارات حالة الوصلات والإقلاع البارد وتغيّر التهيئة. طُبِّقت الكتلة نفسها على الموجّهات الأربعة والمبدّلين، وتظهر نتيجتها على أيٍّ منها عبر <span class="en">show snmp</span>.</p>
+
+<h2>التوجيه بين VLAN في R3</h2>
+<p>ينفّذ <span class="en">R3</span> أسلوب <span class="en">Router-on-a-stick</span> على الواجهة <span class="en">Gi0/0</span>: واجهةٌ فيزيائية واحدة تعمل بوصفها جذعًا <span class="en">802.1Q</span> تتفرّع منها واجهتان فرعيتان — <span class="en">Gi0/0.10</span> لشبكة المستخدمين في <span class="en">VLAN 10</span> و<span class="en">Gi0/0.20</span> لشبكة الإدارة في <span class="en">VLAN 20</span> — ولكلٍّ منهما عنوان بوابةٍ خاصٌّ بها من الخطة. يمنح هذا الأسلوب فصلَ الحِمل عن الإدارة بوصلةٍ فيزيائية واحدة، وهو قرارٌ مقصود في مختبر تعليمي: فحركةُ المراقبة نفسها (استقصاء <span class="en">NMS-PC</span> و<span class="en">Traps</span> العائدة إليه) تسلك شبكةَ الإدارة المنفصلة عن شبكة المستخدمين — تمامًا كما يوصي به في شبكات الإنتاج.</p>
+
+<h2>تهيئة المبدّلات و VLAN</h2>
+<p>يُنشئ <span class="en">SW-HQ</span> الشبكتين الافتراضيتين <span class="en">VLAN 10</span> و<span class="en">VLAN 20</span> ويسمّيهما، ويجعل منفذه المتّصل بـ<span class="en">R3</span> جذعًا، ويُسند منافذ المستخدمين إلى <span class="en">VLAN 10</span> ومنافذ الخادم ومحطة الإدارة إلى <span class="en">VLAN 20</span>. ويحمل <span class="en">SW-Branch</span> تهيجةً أبسط: شبكة افتراضية واحدة للفرع وواجهة إدارة على <span class="en">192.168.30.5</span> وبوابة افتراضية نحو <span class="en">R2</span>. وكلا المبدّلين يحملان كتلة <span class="en">SNMP</span> نفسها — فهما جهازان مُداران قيد المراقبة مثل الموجّهات تمامًا، وواجهاتهما تظهر في جدول الواجهات الذي يستعلمه أمر <span class="en">/ifaces</span> من البوت.</p>
+
+<h2>مستوى الخدمات</h2>
+<p>يقدّم الخادم <span class="en">SVR-MGMT</span> خدمتين تُوثِّقان سلوك الشبكة: <span class="en">syslog</span> الذي يستقبل سجلات الأجهزة كلها في موضع واحد، و<span class="en">NTP</span> الذي يوحّد الساعة بينها فتتطابق الطوابع الزمنية عبر كل السجلات — وهو شرطٌ لازم لترتيب الأحداث عند أي تحقيق لاحق في حادث. ويسبق العنوانان المذكوران في الخطة دورَ الخدمات كاملًا: كل التهيئة تشير إلى <span class="en">192.168.20.50</span> للسجلات والزمن، وإلى <span class="en">192.168.20.100</span> للمراقبة.</p>
+
+<h2>التحقق داخل المختبر</h2>
+<p>صُمِّم الملف ليُتحقَّق منه داخل <span class="en">Packet Tracer</span> نفسه بثلاث خطوات يستهلكها المقيّم في دقيقتين: فتح طرفية <span class="en">R1</span> وتنفيذ <span class="en">show snmp</span> فتظهر سياسة المجتمع والوجهة والإشعارات؛ ثم <span class="en">show ip ospf neighbor</span> فتظهر جيران النواة الثلاثة بحالة <span class="en">FULL</span>؛ ثم فتح محطة الأوامر في <span class="en">NMS-PC</span> و<span class="en">ping 192.168.30.1</span> — بوابةُ شبكة الفرع عبر النواة — فتأتي الإجابات. بهذه الخطوات الثلاث يثبت الملف أن التوجيه والفصل والتهيئة تعمل قبل أن يفتح المقيّم سطرًا واحدًا من كود المراقبة.</p>
+<!-- ======================= CH 5 ======================= -->
+<div class="chapter-header" id="ch5">
+    <span class="ch-tag">CHAPTER 05</span>
+    <h1>محرّك المراقبة</h1>
+    <div class="ch-rule"></div>
+</div>
+
+<h2>نظرة عامة على المعمارية</h2>
+<p>يقف محرّك المراقبة على ثلاث وحدات نظيفة الحدود، لكلٍّ منها ملفٌ واحد واختباراته الخاصة، ويجمعها خطُّ بياناتٍ واحد يجري من الأجهزة إلى التنبيه. <span class="en">snmp_lite.py</span> هو بروتوكول <span class="en">SNMPv2c</span> كاملًا مكتوبًا من الصفر: مرمّز <span class="en">BER/ASN.1</span>، وباني طلبات <span class="en">GET</span> و<span class="en">GETNEXT</span>، وفاكّ رسائل، ومولّد ومستقبل رسائل الـ<span class="en">Trap</span>. و<span class="en">agent_sim.py</span> يشغّل الوكلاء الستة — <span class="en">R1</span> إلى <span class="en">R4</span> و<span class="en">SW-HQ</span> و<span class="en">SW-Branch</span> — وكلٌّ منهم يحاكي موجّه <span class="en">Cisco</span> على مستوى الكائنات: قيم معالجٍ وذاكرةٍ تتغيّر سلوكيًّا، وجدول واجهاتٍ كامل، وبثُّ إشعاراتٍ عند الحوادث المبرمجة في سيناريو التمرين. و<span class="en">monitor.py</span> هو القلب التشغيلي: المستقصي الدوري، وآلة حالات العتبات، ومستقبل الـ<span class="en">Traps</span> على المنفذ <span class="en">1620</span>، وموزّع التنبيهات الذي يكتب السجلَّ الدائم ويصطفّ في طابور <span class="en">Telegram</span>. يحفظ المحرّك حالته في <span class="en">state.json</span> — منه تجيب نافذة البوت أوامرَ الحالة — وي appending كل تنبيه إلى <span class="en">alerts.jsonl</span> بطابعَي زمن الحدث والكشف معًا.</p>
+<div class="fig">
+    <img src="figures/fig_architecture.png" alt="Monitoring engine architecture" style="max-width:640px">
+    <div class="cap">الشكل 5.1 — معمارية المحرّك: الوكلاء في الأسفل، وsnmp_lite وسيط البروتوكول، والمستقصي ومستقبل الـTraps وآلة الحالات في الوسط، والتنبيه والتسجيل في الأعلى</div>
+</div>
+
+<h2>snmp_lite: تنفيذ SNMPv2c من الصفر</h2>
+<p>كُتبت الوحدة بلا أي تبعية خارجية — لا <span class="en">pysnmp</span> ولا غيرها — لأن الهدف التعليمي هو أن يكون كل بايت على السلك من صنع المشروع نفسه وقابلًا للشرح بايتًا بايت. تُرمَّز رسالة الطلب بتسلسل: حزمة <span class="en">version</span> ثم <span class="en">community</span> ثم <span class="en">PDU</span>، وكلٌّ منها كتلة <span class="en">TLV</span> متداخلة؛ ويُرمَّز <span class="en">OID</span> وفق قاعدة الأرقام الأربعينية — البايت الأول يساوي <span class="en">40×a+b</span> لأول قسمين، ثم كل قسمٍ لاحقٌ بايتٌ واحد إن قلّ عن 128 وإلا سلسلة بايتات بصيغة الأساس 128. ويُرفَق بكل دالةٍ ترميزٍ مقابلةٌ للفك، ويشغّل الملف اختباراته الذاتية عند تشغيله مباشرة: كل نوعٍ من <span class="en">INTEGER</span> إلى <span class="en">Counter64</span> يُرمَّز ثم يُفكّ ويُقارَن بالأصل. جوهر الواجهة أربع دوال:</p>
+<div class="code">def encode_varbind(oid: str, value, vtype) -&gt; bytes     # رابط متغيّر واحد
+def decode_message(raw: bytes) -&gt; dict                   # رسالة كاملة
+def build_get(community, oids, req_id) -&gt; bytes          # طلب GET
+def build_trap_v2c(community, oid, value, uptime) -&gt; bytes  # إشعار Trap</div>
+<p>وتضيف الوحدة بانيَ <span class="en">GETNEXT</span> ومشيَ الجداول <span class="en">walk</span> الذي يجمع صفوف <span class="en">ifTable</span> كاملةً بتكرار الطلب حتى مغادرة نطاق الجدول. هذا هو المستوى الذي يُبنى عليه كل ما بعده: المستقصي لا يعرف شيئًا عن <span class="en">BER</span>، والوكلاء لا يعرفون شيئًا عن العتبات — وكل التقاءٍ بين الطبقات يجري في واجهاتٍ صريحة قابلة للاختبار المستقل.</p>
+
+<h2>الوكلاء المُحاكون</h2>
+<p>يشغّل <span class="en">agent_sim.py</span> ستة وكلاء على عناوين النهايات المرقّمة في التهيئة، وكل وكيل يكشف الكائنات نفسها التي يكشفها <span class="en">IOS</span>: هويةً وزمنَ تشغيل وحملَ معالجٍ وذاكرةً وجدولَ واجهاتٍ من خمس صفوف على الأقل مع عدّادات المرور الحيّة. القيم تتغيّر فعليًا بين الاستقصاءات — بايتات الواجهات تتراكم، والمعالج يتنفّس ضمن نطاق سلوكي — فيرى المستقصي شبكةً حيّةً لا قيمًا ثابتة. ويتضمّن السيناريو حوادثَ مبرمجة بزمنٍ مضبوط: صعود حمل <span class="en">R2</span> إلى التحذير ثم الحرج ثم التعافي، وسقوط وصلة <span class="en">R3</span> ثم عودتها، وضغط ذاكرة <span class="en">R1</span>. وعند كل حادثةٍ يدفع الوكيل رسالة <span class="en">Trap</span> حقيقية بصيغة <span class="en">v2c</span> إلى وجهة النظام — فتُختبر مساحة الإشعارات غير المتزامنة كما تُختبر مساحة الاستقصاء تمامًا.</p>
+
+<h2>المستقصي الدوري</h2>
+<p>يدور المستقصي كل فاصلٍ زمني (خمس ثوانٍ في التمرين، وخمس عشرة في التهيئة الإنتاجية الافتراضية) على الأجهزة الستة، فيرسل لكل جهازٍ دفعةً واحدة من طلبات <span class="en">GET</span> تجمع كل الكائنات المطلوبة — الهوية والزمن والمعالج والذاكرة وحالة الواجهات — فيبدّل عددَ الرحلات على الشبكة. تُحدَّث كل قراءةٍ في <span class="en">state.json</span> بطابع زمني، ثم تُمرَّر القيم الحرجة إلى آلة الحالات. وإذا انقضت المهلة دون ردٍّ — ثلاث ثوانٍ افتراضيًّا — يُعلَّم الجهاز <span class="en">DOWN</span> ويُطلق تنبيه انقطاعٍ خاصٌّ به، ويعود إلى <span class="en">UP</span> عند أول إجابة ناجحة. وهكذا يُغطّى فشلُ الوصول نفسه بوصفه حادثةً من الدرجة الأولى — لا يمرّ صامتًا كما يمرّ في كثيرٍ من أنظمة المراقبة الطلابية.</p>
+
+<h2>آلة حالات العتبات</h2>
+<p>يُعالَج كل زوجٍ (جهاز، مقياس) بآلة حالاتٍ ثلاثية: <span class="en">OK</span> سليم، و<span class="en">WARNING</span> تحذير، و<span class="en">CRITICAL</span> حرج. تنتقل الحالة صعودًا عند تجاوز القيمة العتبةَ الدنيا أو العليا — للمعالج <span class="en">70%</span> و<span class="en">85%</span>، وللذاكرة <span class="en">75%</span> و<span class="en">90%</span> — وتنزل عند التراجع. و<b>التنبيه يُطلق عند الانتقال فقط</b>، لا عند كل قراءةٍ تتجاوز العتبة: فحادثُ المعالج الحرج المستمر خمسين ثانيةً يولّد تنبيهًا حرجًا واحدًا لحظة الدخول، ثم إشعار تعافٍ واحدًا لحظة الخروج — لا سيلًا من التنبيهات المتطابقة. هذه القاعدة هي ما يجعل القناة قابلةً للسكن: فمشغّلٌ يعرف أن كل رنّةٍ من هاتفه تعني تغيّرًا جديدًا في الحالة، لا تكرارًا لما يعرفه. وكل انتقالٍ يُطابَق بطابعَي زمن الحدث وزمن الكشف، فيُقاس زمن الاستجابة قياسًا مباشرًا لا تقديرًا.</p>
+
+<h2>مستقبل الـ Traps</h2>
+<p>يستمع مستقبل الإشعارات على المنفذ <span class="en">UDP 1620</span> (المنفذ المعياري <span class="en">162</span> محجوزٌ لعملية الجذر على معظم الأنظمة، فيُستعمل مكافؤه المرفوع بثابتٍ معلَن في التهيئة). تُفكّ كل رسالة وصولٍ فور تلقّيها، ويُحوَّل نوعها إلى تنبيهٍ فوري: سقوط وصلةٍ يولّد تنبيهًا حرجًا يحمل اسم الجهاز والواجهة، والإقلاع البارد تنبيهَ إعادة تشغيل، وعودة الوصلة إشعارَ تعافٍ. القياس الفعلي في الفصل السابع يُظهر زمن الوصول-إلى-التنبيه <span class="en">0.4</span> ثانية — وهو رقمٌ يشرح لماذا تبقى الـ<span class="en">Traps</span> الخطَّ الأول للأعطال اللحظية مهما تقدّم الاستقصاء: فالحدث يدفع بنفسه نحو المدير بدل انتظار سؤاله.</p>
+
+<h2>التهيئة</h2>
+<p>يعيش كل ضبطٍ قابلٍ للتغيير في ملف <span class="en">config.yaml</span> واحد: عناوين الأجهزة الستة، والمجتمع، وفاصل الاستقصاء، والمهلة وعدد المحاولات، والعتبات الأربع، ووجهة الـ<span class="en">Traps</span>، وإعدادات <span class="en">Telegram</span>. الانتقال من المختبر إلى شبكةٍ حقيقية يعني تحريرَ العناوين في هذا الملف وحده — البنية والمنطق والاختبارات كلها لا تتغيّر:</p>
+<div class="code">devices:
+  - { name: R1-Core,    host: 127.0.0.1, port: 1161 }
+  - { name: R2-Branch,  host: 127.0.0.1, port: 1162 }
+  - { name: R3-HQ,      host: 127.0.0.1, port: 1163 }
+community: MonNet-RO
+poll_interval: 15
+thresholds:
+  cpu:    { warning: 70, critical: 85 }
+  memory: { warning: 75, critical: 90 }</div>
+
+<!-- ======================= CH 6 ======================= -->
+<div class="chapter-header" id="ch6">
+    <span class="ch-tag">CHAPTER 06</span>
+    <h1>مستوى الإشعار والتحكّم عبر Telegram</h1>
+    <div class="ch-rule"></div>
+</div>
+
+<h2>إنشاء البوت</h2>
+<p>التنبيهُ الذي لا يقرؤه أحد لا يُميَّز عن غياب التنبيه أصلًا. يجعل <span class="en">Telegram</span> آخرَ الخطوة عملَ بضعِ دقائق دون أي بنية خادمة: محادثة <span class="en">@BotFather</span> ثم <span class="en">/newbot</span> تُصدر توكنًا — زوجَ معرّفٍ وسرٍّ بصيغة <span class="en">123456789:AA...</span> — يصادق كل نداءٍ لاحق. بوتُ المشروع متعمّدُ البساطة: لا امتيازاتٍ خاصة، ويشغَّل حيثما يشغَّل المحرّك، ويتخاطب مع خوادم <span class="en">Telegram</span> حصرًا عبر الاستطلاع الطويل <span class="en">HTTPS</span> (<span class="en">getUpdates</span> بمهلة خمسٍ وعشرين ثانية) — وهو نمطٌ يعمل خلف أي <span class="en">NAT</span> وجدارٍ ناري دون أي منفذٍ وارد. ومعرّفُ محادثة المشغّل، يُقرأ بإرسال أول رسالةٍ إلى البوت ثم قراءة كائن المحادثة من <span class="en">getUpdates</span>، يكمل العنونة: فالتنبيهات تُدفَع بـ<span class="en">sendMessage</span>، والأوامر تصل بوصفها رسائل عادية.</p>
+
+<div class="tbl">
+    <table>
+        <tr><th style="width:20%">الأمر</th><th style="width:50%">الوظيفة</th><th>مصدر البيانات</th></tr>
+        <tr><td class="ltr">/status</td><td>جدول صحة الأجهزة الستة: الوصول والمعالج والذاكرة وزمن التشغيل</td><td>لقطة state.json</td></tr>
+        <tr><td class="ltr">/cpu R2-Branch</td><td>معالجُ جهازٍ واحدٍ وذاكرتُه — استقصاء حيّ لحظي</td><td>GET فوري عبر SNMP</td></tr>
+        <tr><td class="ltr">/ifaces R3-HQ</td><td>جدولُ واجهات جهازٍ بحالة التشغيل — استقصاء حيّ</td><td>مشي ifTable حيّ</td></tr>
+        <tr><td class="ltr">/alerts [n]</td><td>آخر n تنبيهًا بطوابعها الزمنية (عشرة افتراضيًّا)</td><td>سجل alerts.jsonl</td></tr>
+        <tr><td class="ltr">/mute 30</td><td>كتم إشعارات التنبيه لمدة محددة</td><td>bot_state.json</td></tr>
+        <tr><td class="ltr">/unmute</td><td>إعادة تفعيل الإشعارات فورًا</td><td>bot_state.json</td></tr>
+    </table>
+    <div class="cap">الجدول 6.1 — مجموعة أوامر البوت ومصادر بياناتها</div>
+</div>
+
+<p>يستحق التمييزُ بين مصدري البيانات في الجدول وقفةً. فـ<span class="en">/status</span> يقرأ لقطة المحرّك فلا يكلّف الشبكة شيئًا — يجيب من <span class="en">state.json</span> بطرافةٍ تسبق دورةَ استقصاءٍ واحدة على الأكثر. أما <span class="en">/cpu</span> و<span class="en">/ifaces</span> فيُجريان استقصاءَ <span class="en">SNMP</span> حيًّا عبر نفس عميل <span class="en">snmp_lite</span> الذي يستخدمه المستقصي، فيرى المشغّل القيمة كما هي الآن لا كما كانت في الدورة الأخيرة. يعلّم هذا التصميم المزدوج المقايضةَ مباشرةً: فالنوافذ المخبّأة تتوسّع مع كثرة المراقبين، والنوافذ الحيّة هي أداة فرز الحوادث النشطة.</p>
+
+<h2>تصميم رسائل التنبيه</h2>
+<p>صُمِّمت رسائل التنبيه لتبلغ الغرض من نظرةٍ واحدة على شاشةٍ مقفلة: رمزُ خطورةٍ يبدأ السطر — <span class="en">🔴</span> للحرج و<span class="en">⚠️</span> للتحذير و<span class="en">✅</span> للتعافي — ثم اسم الجهاز، ثم القيمة والعتبة، ثم طابع الزمن. ومثالان حقيقيان من تمرين الفصل السابع:</p>
+<div class="code">🔴 CRITICAL — R2-Branch: CPU = 93% (threshold 85%)
+   at 10:02:11
+✅ RESOLVED  — R2-Branch: CPU back to 26%
+   at 10:02:47</div>
+<p>لاحظ البُعدَ الزمني بين الرسالتين: ستٌّ وثلاثون ثانية من الحرج إلى التعافي، وصلت فيه الرسالتان فور وقوعهما لا في تقريرٍ صباحيّ. هذا هو «إغلاق الحلقة» الذي يبحث عنه مشغّلٌ حقيقي: أن يعرف متى انتهى الحادث لا متى بدأ فقط.</p>
+
+<h2>النموذج الأمني</h2>
+<p>يُطبَّق على البوت نموذجُ تخويلٍ بسيطٌ وصارم: قائمةُ محادثاتٍ مرخّصة في التهيئة، وكل رسالةٍ من محادثةٍ غريبة تُرفض بجوابٍ لا يكشف شيئًا. والتوكن — وهو السرُّ الوحيد في النظام — يُقرأ من متغيّر بيئةٍ (<span class="en">TELEGRAM_BOT_TOKEN</span>) لا من ملفٍّ يُرسَل إلى المستودع، ويُتاح قالبُ <span class="en">.env.example</span> ليُنسَخ ويُملأ. أما سلسلةُ <span class="en">community</span> فلا تغادر مضيفَ المختبر أصلًا: فهي تُستعمل بين المحرّك والوكلاء المحليين فقط، ولو انتقل المشروع إلى شبكةٍ حقيقية لبقي توصيفُ الإصدار <span class="en">2c</span> الحدَّ المعروف الذي يُعالَج بالترقية إلى <span class="en">SNMPv3</span> — وهي التوسعة الأولى في الفصل التاسع.</p>
+<!-- ======================= CH 7 ======================= -->
+<div class="chapter-header" id="ch7">
+    <span class="ch-tag">CHAPTER 07</span>
+    <h1>الاختبار والتحقق</h1>
+    <div class="ch-rule"></div>
+</div>
+
+<h2>المنهجية</h2>
+<p>صُمِّمت عملية التحقق بوصفها برنامجًا آليًّا واحدًا — <span class="en">test_system.py</span> — يُشغَّل بأمرٍ واحد وينتهي في دقيقتين ونصف بخلاصةٍ صريحة. لا «معاينة يدوية» ولا «يعمل عندي»: كل ادّعاءٍ في هذا التقرير يقابله اختبارٌ يحمل اسمًا ورقمًا ونتيجةً. تنقسم الحزمة إلى أربع مراحل متتابعة تغطّي النظام من أدنى بايتٍ إلى أعلى تنبيه:</p>
+<div class="tbl">
+    <table>
+        <tr><th style="width:26%">المرحلة</th><th style="width:12%">العدد</th><th>ما تتحقق منه</th></tr>
+        <tr><td>1 — اختبار البروتوكول الذاتي</td><td class="ltr">1 مركزي</td><td>ترميز BER وفكّه لكل نوع، وبناء الرسائل وفكّها — ذهابًا وإيابًا بلا انحراف</td></tr>
+        <tr><td>2 — إقلاع الوكلاء</td><td class="ltr">3</td><td>إجابة الستة عن GET لكائن sysName، ومشي جدول واجهات كامل، وحيوية عدّادات المرور بين قراءتين</td></tr>
+        <tr><td>3 — تمرين الحوادث</td><td class="ltr">8</td><td>التقاط التحذير والحرج والتعافي، وزمن الكشف، وكبت التكرار أثناء استمرار الحالة، وتنبيه الانقطاع والعودة</td></tr>
+        <tr><td>4 — معالجات البوت</td><td class="ltr">10</td><td>كل أمرٍ يجيب بمضمونه الصحيح، والتخويل يرفض المحادثة الغريبة، والكتم يُكتب في حالةٍ مشتركة</td></tr>
+    </table>
+    <div class="cap">الجدول 7.1 — مراحل التحقق الأربع ومجموع اختباراتها الاثنين والعشرين</div>
+</div>
+
+<h2>نتائج تمرين الحوادث</h2>
+<p>شُغِّل التمرين بالسيناريو بسرعةٍ مضاعفة وبفاصل استقصاءِ خمسِ ثوانٍ، فتدفّقت الحوادث المبرمجة أمام المحرّك كما تتدفّق أمام أي نظام إنتاج. سُجِّل لكل حادثةٍ زمنُ وقوعها وزمنُ التقاطها، والفرقُ بينهما هو زمن الكشف المقيس. الجدول 7.2 يعرض النتائج الخمس الحاسمة كما خرجت من السجل:</p>
+<div class="tbl">
+    <table>
+        <tr><th style="width:34%">الحادثة</th><th style="width:14%">الحدث عند</th><th style="width:14%">الكشف عند</th><th>زمن الاستجابة</th></tr>
+        <tr><td class="ltr">R2 CPU 78% (warning)</td><td class="ltr">22.5 s</td><td class="ltr">23.8 s</td><td class="ltr ok">1.4 s</td></tr>
+        <tr><td class="ltr">R2 CPU 93% (critical)</td><td class="ltr">30.0 s</td><td class="ltr">33.9 s</td><td class="ltr">3.9 s</td></tr>
+        <tr><td class="ltr">R3 Gi0/0 link down (trap)</td><td class="ltr">40.0 s</td><td class="ltr">40.4 s</td><td class="ltr ok">0.4 s</td></tr>
+        <tr><td class="ltr">R1 memory 81% (warning)</td><td class="ltr">57.5 s</td><td class="ltr">58.9 s</td><td class="ltr">1.4 s</td></tr>
+        <tr><td class="ltr">R2 CPU recovery</td><td class="ltr">82.5 s</td><td class="ltr">83.9 s</td><td class="ltr">1.4 s</td></tr>
+    </table>
+    <div class="cap">الجدول 7.2 — زمن الكشف المقيس لكل حادثة عند فاصل استقصاء خمس ثوانٍ والسيناريو بسرعة مضاعفة</div>
+</div>
+<div class="fig">
+    <img src="figures/latency_chart.png" alt="Measured detection latency" style="max-width:560px">
+    <div class="cap">الشكل 7.1 — زمن الكشف المقيس بحسب نوع الحادثة: الـTrap يسبق الاستقصاء بمراحل كما هو متوقع نظريًّا، والقيم فوق الأعمدة قياسات فعلية لا تقديرات</div>
+</div>
+
+<h2>التحليل</h2>
+<p>تستحق ثلاثُ ملاحظاتٍ الوقوف عندها. <b>أولًا — تفوّق الـTraps بمراحل:</b> سقوطُ الوصلة اكتُشف في <span class="en">0.4</span> ثانية لأن الوكيل دفع الإشعار لحظة الحدث، بينما اكتُشفت ذروةُ المعالج الحرج في <span class="en">3.9</span> ثانية لأنها انتظرت أولَ استقصاءٍ يقع بعد تجاوز العتبة — والفارقُ بين النمطين هو بالضبط الفارق النظري بين المستويين، ظاهرًا في القياس لا في الكلام. <b>ثانيًا — حدود الاستقصاء مقيَّدة بالفاصل لا بالبروتوكول:</b> فزمنُ كشف استقصائيٍّ عند فاصل خمس ثوانٍ يقع حتمًا بين صفرٍ وخمس ثوانٍ (زائد معالجة طفيفة)، وينخفض نسبيًّا عند الفاصل الإنتاجي الافتراضي خمس عشرة ثانية — والاختبار نفسه قابلٌ لإعادة التشغيل بأي فاصلٍ ليتحقق المقيّم من العلاقة بنفسه. <b>ثالثًا — كبت التكرار مُثبَتٌ رقميًّا:</b> خلال اثنتين وخمسين ثانيةً من استمرار الحالة الحرجة وُلد تنبيهٌ حرجٌ واحد بالضبط، لا خمسةٌ وعشرون تنبيهًا متطابقًا — وهذا هو الفرق بين قناةٍ يقرؤها إنسانٌ وقناةٍ يُسكِتُها.</p>
+
+<!-- ======================= CH 8 ======================= -->
+<div class="chapter-header" id="ch8">
+    <span class="ch-tag">CHAPTER 08</span>
+    <h1>دليل الاستخدام</h1>
+    <div class="ch-rule"></div>
+</div>
+
+<h2>المتطلبات والتجهيز</h2>
+<p>يحتاج تشغيل النظام حاسوبًا بـ<span class="en">Python 3.10</span> أو أحدث — والنظام بلا أي تبعيات خارجية عدا مكتبة <span class="en">PyYAML</span> لقراءة التهيئة و<span class="en">requests</span> لواجهة <span class="en">Telegram</span> — إضافةً إلى ملف <span class="en">.pkt</span> الذي يفتح في <span class="en">Packet Tracer 8.2</span> وما بعده. تُلخَّص البداية الكاملة في الجدول 8.1، والتفصيل الكامل خطوةً خطوة في الملحق أ:</p>
+<div class="tbl">
+    <table>
+        <tr><th style="width:30%">الخطوة</th><th>الأوامر / الفعل</th></tr>
+        <tr><td>تثبيت التبعيات</td><td class="ltr">pip install -r requirements.txt</td></tr>
+        <tr><td>تهيئة الأسرار</td><td class="ltr">cp .env.example .env  ثم تحرير التوكن ومعرّف المحادثة</td></tr>
+        <tr><td>تشغيل الوكلاء</td><td class="ltr">python3 agent_sim.py   (طرفية 1)</td></tr>
+        <tr><td>تشغيل المحرّك</td><td class="ltr">python3 monitor.py     (طرفية 2)</td></tr>
+        <tr><td>تشغيل البوت</td><td class="ltr">python3 bot.py         (طرفية 3)</td></tr>
+        <tr><td>التحقق الكامل</td><td class="ltr">python3 test_system.py  (دقيقتان ونصف)</td></tr>
+    </table>
+    <div class="cap">الجدول 8.1 — البدء السريع: من التثبيت إلى التنبيهات على الهاتف</div>
+</div>
+
+<h2>تشغيل العرض التوضيحي</h2>
+<p>يجمع سكربتُ <span class="en">run_demo.sh</span> الأطراف الثلاثة في أمرٍ واحد: يرفع الوكلاء ثم المحرّك ثم البوت، فيبدأ سيناريو الحوادث بعد لحظات وتتدفّق التنبيهات على الهاتف في الزمن الحقيقي — من التحذير إلى الحرج إلى التعافي، ومن سقوط الوصلة إلى عودتها. يصلح هذا العرضُ مباشرةً لجلسة المناقشة: يُشغَّل في ثلاث دقائق ويعرض كل مستويات النظام أمام اللجنة بلا أي تحضيرٍ يدوي.</p>
+
+<h2>استعلام الأعطال</h2>
+<div class="tbl">
+    <table>
+        <tr><th style="width:34%">العِرَض</th><th>السبب الغالب</th><th>المعالجة</th></tr>
+        <tr><td>لا تصل تنبيهات إلى الهاتف</td><td>توكن غير صحيح أو المحادثة لم تُرخَّص</td><td>تأكيد المتغيّرين في .env ومعرّف المحادثة في config.yaml</td></tr>
+        <tr><td>أجهزة كلها DOWN</td><td>الوكلاء غير مشغّلين أو منافذ مشغولة</td><td>تشغيل agent_sim.py والتحقق من خلوّ المنافذ 1161-1166</td></tr>
+        <tr><td>مهلات استقصاء متكررة</td><td>فاصل أقصر من قدرة الجهاز على الإجابة</td><td>رفع poll_interval أو timeout في config.yaml</td></tr>
+        <tr><td>البوت لا يرد على الأوامر</td><td>المحادثة خارج قائمة التخويل</td><td>إضافة معرّف المحادثة إلى authorized_chats</td></tr>
+        <tr><td>فشل اختبار مرحلة معيّنة</td><td>نسخة Python أقدم من 3.10</td><td>تحديث بيئة التشغيل وإعادة test_system.py</td></tr>
+    </table>
+    <div class="cap">الجدول 8.2 — مرجع استعلام الأعطال الأكثر شيوعًا</div>
+</div>
+
+<h2>توسعة النظام</h2>
+<p>صُمِّم النظام ليُوسَّع من نقاطٍ معلومة. إضافةُ جهازٍ تُدار = سطرٌ واحد في <span class="en">config.yaml</span> وعنوانُ منفذٍ جديد في الوكلاء. تغييرُ عتبةٍ = تحريرُ قيمةٍ في الملف نفسه بلا لمسِ كودٍ واحد. وربطُ جهازٍ حقيقي من <span class="en">Cisco</span> = استبدالُ زوج <span class="en">host/port</span> بعنوان الجهاز ومنفذِ <span class="en">SNMP</span> المعياريّ <span class="en">161</span> — فيعمل المستقصي ومستقبل الـ<span class="en">Traps</span> وكل ما فوقهما دون أي تعديلٍ آخر. أما إضافةُ مقياسٍ جديد — حرارةً، مثلًا — فتقع في <span class="en">snmp_lite</span> (ترميز النوع) وفي جدول الكائنات، وتتوارث الاختبارات النمطَ نفسه.</p>
+
+<!-- ======================= CH 9 ======================= -->
+<div class="chapter-header" id="ch9">
+    <span class="ch-tag">CHAPTER 09</span>
+    <h1>الخاتمة والأعمال المستقبلية</h1>
+    <div class="ch-rule"></div>
+</div>
+
+<h2>المنجزات</h2>
+<p>سلّم المشروع ما وعدت به أهدافه الخمسة واحدًا واحدًا، وبوثائقِ قياسٍ لا بجُملٍ وصفية. فشبكةُ المختبر قائمة: اثنا عشر جهازًا في <span class="en">Packet Tracer 8.2</span> بتوجيهٍ وتكرارٍ وفصلٍ وخدماتٍ وسياسةِ <span class="en">SNMP</span> موحّدة، تفتح جاهزةً بلا أي تهيئةٍ يدوية. وبروتوكولُ <span class="en">SNMPv2c</span> مكتوبٌ من نصّ <span class="en">RFC</span> حتى مستوى بايت <span class="en">BER</span>: مرمّزٌ وطلباتٌ وإشعاراتٌ بلا أي تبعية خارجية، وباختباراتٍ ذاتيةٍ تُثبت كل نوعٍ ذهابًا وإيابًا. ومحرّكُ العتبات آلةُ حالاتٍ حقيقية يُطلق تنبيهاتها عند الانتقالات فقط — وقد أبقى حادثًا حرجًا مستمرًّا خمسين ثانيةً عند تنبيهٍ واحد. وقناةُ <span class="en">Telegram</span> تبليغٌ فوري وتحكّمٌ تفاعلي حيّ. وحزمةُ التحقق الاثنان والعشرون اختبارًا تعمل بأمرٍ واحدٍ وتُعاد في دقيقتين ونصف. والأهم من ذلك مجتمعًا: كلُّ ذلك مُوثَّق بأرقامٍ مقيسةٍ قابلةٍ لإعادة الإنتاج أمام أي لجنة.</p>
+
+<h2>الحدود</h2>
+<p>تبقى ثلاثة حدودٍ معلنةً لا يخفيها التقرير. فالإصدار <span class="en">2c</span> يصادق بسلسلةٍ نصية مكشوفة — وهو حدُّ أمنيٍّ بنيويّ يعالجه <span class="en">SNMPv3</span> ولم يُنفَّذ هنا لئلّا يتضخّم نطاق المشروع على حساب جوهره البروتوكوليّ. ورزمةُ <span class="en">Packet Tracer</span> المحاكاة لا تُخاطَب من الخارج، فقام الوكلاءُ المطابقون للبروتوكول مقامَ مستوى البيانات الحيّ — بتوثيقٍ صريحٍ للحدّ وبمسارِ هجرةٍ واضحٍ إلى العتاد الحقيقي. والعتباتُ ثابتةٌ لا تتعلّم: فهي تفهم التدهور المطلق لا النسبيّ إلى خطِّ أساسٍ تعلّمته النظام من سلوك الشبكة نفسها. في كل حالةٍ منها، البنيةُ المهيّأة للمعالجة جاهزةٌ فعلًا — وهذا مقصود.</p>
+
+<h2>الأعمال المستقبلية</h2>
+<ul class="b">
+<li><b>الترقية إلى SNMPv3:</b> تفعيل المصادقة والخصوصية بنموذج <span class="en">USM</span> — والمحرّك مهيّأ لها بنيويًّا لأن عمليات البروتوكول معزولةٌ في وحدةٍ واحدة ذات اختباراتٍ مستقلة.</li>
+<li><b>السلاسل الزمنية ولوحات القيادة:</b> تخزين القراءات في <span class="en">RRD</span> أو <span class="en">InfluxDB</span> وعرضها في <span class="en">Grafana</span> — فيتحوّل الأرشيفُ من سجلِّ تنبيهاتٍ إلى تاريخِ أداءٍ كامل.</li>
+<li><b>الهجرة إلى العتاد:</b> تشغيل المحرّك على موجّهاتٍ حقيقية (أو <span class="en">GNS3</span> بصورٍ حقيقية) بتعديل العناوين في ملف التهيئة وحده — والمسار موثَّق في الفصل الثامن.</li>
+<li><b>كشف الشذوذ:</b> استبدال العتبات الثابتة بخطوط أساسٍ تتعلّم تلقائيًّا — وبنيةُ البيانات اللازمة ينتجها المحرّك اليوم فعلًا.</li>
+</ul>
+
+<!-- ======================= REFERENCES ======================= -->
+<div class="chapter-header refs" id="refs">
+    <span class="ch-tag">REFERENCES</span>
+    <h1>المراجع</h1>
+    <div class="ch-rule"></div>
+</div>
+<p><span class="no">[1]</span> J. Case, M. Fedor, M. Schoffstall, and J. Davin, "A Simple Network Management Protocol (SNMP)," RFC 1157, Internet Engineering Task Force, May 1990.</p>
+<p><span class="no">[2]</span> K. McCloghrie and M. Rose, "Management Information Base for Network Management of TCP/IP-based internets: MIB-II," RFC 1213, Internet Engineering Task Force, March 1991.</p>
+<p><span class="no">[3]</span> J. Case, K. McCloghrie, M. Rose, and S. Waldbusser, "Introduction to Community-based SNMPv2," RFC 1901, Internet Engineering Task Force, January 1996.</p>
+<p><span class="no">[4]</span> J. Case, K. McCloghrie, M. Rose, and S. Waldbusser, "Protocol Operations for Version 2 of the Simple Network Management Protocol (SNMPv2)," RFC 3416, Internet Engineering Task Force, December 2002.</p>
+<p><span class="no">[5]</span> D. Harrington, R. Presuhn, and B. Wijnen, "An Architecture for Describing Simple Network Management Protocol (SNMP) Management Frameworks," RFC 3411, Internet Engineering Task Force, December 2002.</p>
+<p><span class="no">[6]</span> U. Blumenthal and B. Wijnen, "User-based Security Model (USM) for version 3 of the Simple Network Management Protocol (SNMPv3)," RFC 3414, Internet Engineering Task Force, December 2002.</p>
+<p><span class="no">[7]</span> Cisco Systems, "Cisco IOS MIB Tools - CISCO-PROCESS-MIB and CISCO-MEMORY-POOL-MIB documentation," Cisco Systems, Inc., available at cisco.com/c/en/us/support/ios-nx-os-software.</p>
+<p><span class="no">[8]</span> W. Stallings, "SNMP, SNMPv2, SNMPv3, and RMON 1 and 2," 3rd ed., Addison-Wesley, 1999.</p>
+<p><span class="no">[9]</span> Cisco Networking Academy, "Introduction to Networks and Scaling Networks lab manuals," Cisco Press.</p>
+<!-- ======================= APPENDICES ======================= -->
+<div class="chapter-header" id="appx">
+    <span class="ch-tag">APPENDIX A</span>
+    <h1>الملحق أ — تشغيل النظام خطوة بخطوة</h1>
+    <div class="ch-rule"></div>
+</div>
+<p>يعيد هذا الملحق تخطيطَ التشغيل الكامل بترتيبٍ يصلح لمن يفتح الحزمة أول مرة. قبل كل شيء، فُكَّ ضغطُ الحزمة وافتح مجلد <span class="en">monitoring-system</span>؛ ثم أكمل الخطوات التالية بالترتيب نفسه:</p>
+<ul class="b">
+<li><b>الخطوة 1 — تهيئة الأسرار:</b> انسخ قالب المتغيرات ثم حرّره: <span class="en">cp .env.example .env</span> واملأ <span class="en">TELEGRAM_BOT_TOKEN</span> بتوكن بوتك (من <span class="en">@BotFather</span>) و<span class="en">TELEGRAM_CHAT_ID</span> بمعرّف محادثتك (يُقرأ من <span class="en">getUpdates</span> بعد أول رسالةٍ إلى البوت).</li>
+<li><b>الخطوة 2 — التبعيات:</b> <span class="en">pip install -r requirements.txt</span> — حزمتان فقط: <span class="en">PyYAML</span> و<span class="en">requests</span>.</li>
+<li><b>الخطوة 3 — الوكلاء:</b> في طرفيةٍ مستقلة شغّل <span class="en">python3 agent_sim.py</span>. ستظهر أسطرُ إقلاع الوكلاء الستة على منافذهم (1161 حتى 1166)، وبثّ إشعارات الإقلاع البارد.</li>
+<li><b>الخطوة 4 — المحرّك:</b> في طرفيةٍ ثانية شغّل <span class="en">python3 monitor.py</span>. تبدأ دورات الاستقصاء فورًا وتُحدَّث <span class="en">state.json</span> مع كل دورة.</li>
+<li><b>الخطوة 5 — البوت:</b> في طرفيةٍ ثالثة شغّل <span class="en">python3 bot.py</span>، ثم أرسل <span class="en">/status</span> من هاتفك — يجب أن يعود جدولُ الأجهزة الستة.</li>
+<li><b>الخطوة 6 — تمرين الحوادث:</b> اترك الأطراف تعمل؛ عند انقضاء السيناريو المبرمج تكون قد استلمت على هاتفك التحذير والحرج وسقوط الوصطة والتعافي — كلٌّ لحظة وقوعه.</li>
+<li><b>الخطوة 7 — التحقق الكامل:</b> <span class="en">python3 test_system.py</span> في طرفيةٍ رابعة؛ تنتهي في دقيقتين ونصف بخلاصة <span class="en">PASS</span> وملخص الحوادث بأزمنتها.</li>
+</ul>
+<div class="note"><b>تنبيه المنافذ:</b> يشغّل المحرّك مستقبل الـTraps على المنفذ 1620 لا المعياري 162، لأن المنافذ الدنيا على معظم أنظمة التشغيل تتطلب صلاحياتِ الجذر؛ والمنفذ البديل معلَنٌ في <span class="en">config.yaml</span> وتستعمله الوكلاء تلقائيًّا، فلا حاجة لأي تعديل يدوي.</div>
+
+<div class="chapter-header" id="appb">
+    <span class="ch-tag">APPENDIX B</span>
+    <h1>الملحق ب — تهيئة IOS الكاملة للموجّه R1</h1>
+    <div class="ch-rule"></div>
+</div>
+<p>تُعرض التهيئة الكاملة كما نُفِّذت في ملف المختبر لموجّه النواة <span class="en">R1-Core</span> — وتتطابق البنية مع بقية الموجّهات والمبدّلين مع اختلاف العناوين وأسماء الواجهات فقط:</p>
+<div class="code">hostname R1-Core
+!
+interface Loopback0
+ ip address 1.1.1.1 255.255.255.255
+!
+interface GigabitEthernet0/0
+ description WAN to R4-ISP
+ ip address 203.0.113.1 255.255.255.252
+ no shutdown
+!
+interface GigabitEthernet0/1
+ description Core link to R2-Branch
+ ip address 10.0.12.1 255.255.255.252
+ no shutdown
+!
+interface GigabitEthernet0/2
+ description Core link to R3-HQ
+ ip address 10.0.13.1 255.255.255.252
+ no shutdown
+!
+router ospf 1
+ router-id 1.1.1.1
+ network 10.0.12.0 0.0.0.3 area 0
+ network 10.0.13.0 0.0.0.3 area 0
+ network 203.0.113.0 0.0.0.3 area 0
+!
+snmp-server community MonNet-RO RO
+snmp-server location CORE-POP Damascus
+snmp-server contact netmon@monnet.lab
+snmp-server host 192.168.20.100 version 2c MonNet-RO
+snmp-server enable traps snmp link linkdown linkup config
+!
+logging host 192.168.20.50
+ntp server 192.168.20.50
+!
+end</div>
+
+<div class="chapter-header" id="appc">
+    <span class="ch-tag">APPENDIX C</span>
+    <h1>الملحق ج — سجل تمرين الاختبار الكامل</h1>
+    <div class="ch-rule"></div>
+</div>
+<p>يُخرج <span class="en">test_system.py</span> عند انتهائه ملخصًا كاملًا يُطابَق مع الجدول 7.2. هذا سجلُ آخر تشغيلٍ كامل كما وُجد في ملف <span class="en">test_results.json</span> المرفق بالحزمة، وهو الدليل القابل لإعادة الإنتاج على كل رقمٍ ورد في هذا التقرير:</p>
+<div class="code">SUMMARY: PASS  (12 alerts recorded)
+
+incident                          event     detected   latency
+R2 CPU 78% (warning)             22.5 s    23.8 s     1.4 s
+R2 CPU 93% (critical)            30.0 s    33.9 s     3.9 s
+R3 Gi0/0 link down (trap)        40.0 s    40.4 s     0.4 s
+R1 memory 81% (warning)          57.5 s    58.9 s     1.4 s
+R2 CPU recovery                  82.5 s    83.9 s     1.4 s
+
+bot replies verified:
+  /help       -&gt; control panel help text
+  /status     -&gt; network status table (6 devices)
+  /cpu        -&gt; live SNMP poll, cpu + memory
+  /ifaces     -&gt; live interface table
+  /alerts     -&gt; recent alerts history
+  /mute 5     -&gt; notifications muted for 5 min
+  /unmute     -&gt; notifications re-enabled
+  unauthorized chat refused</div>
+<p>اثنان وعشرون اختبارًا، اثنا عشر تنبيهًا في تمرينٍ واحد، وخمسة أزمنةِ كشفٍ مقيسة — كلها تُستعاد بأمرٍ واحد في دقيقتين ونصف. لا ادّعاءً في هذا التقرير إلا وله سطرٌ في هذا السجل.</p>
+
+</div><!-- /main-content -->
+
+<!-- ======================= ENDING ======================= -->
+<div class="ending">
+    <div class="rule"></div>
+    <div class="big">نظام مراقبة الشبكات الذكي</div>
+    <div class="sub">ستة أجهزة — مستويا تنبيه — هاتف واحد.<br>
+    أُكمل هذا التقرير ضمن مشروع التخرّج للعام الدراسي <span class="en">2025/2026</span>، وكل قياسٍ فيه قابلٌ لإعادة الإنتاج بأمرٍ واحد.</div>
+    <div class="rule"></div>
+</div>
+
+</body>
+</html>

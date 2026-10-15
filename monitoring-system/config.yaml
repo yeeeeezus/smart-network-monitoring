@@ -1,0 +1,42 @@
+# =====================================================================
+# Smart Network Monitoring — configuration
+# Monitoring plane for the Packet Tracer lab (Smart_Network_Monitoring_Lab.pkt)
+# =====================================================================
+
+community: MonNet-RO          # read-only community (matches IOS snmp-server config)
+interval: 15                  # polling period in seconds
+timeout: 2.0                  # per-GET timeout
+
+# The engine binds here to receive SNMPv2c traps from the agents.
+trap_bind: 127.0.0.1:1620
+
+# Alert thresholds — a state machine fires only on transitions.
+thresholds:
+  cpu:
+    warning: 70
+    critical: 85
+  memory:
+    warning: 75
+    critical: 90
+
+# ---------------- monitored devices ----------------
+# Simulation mode: the agent_sim.py endpoints (same OIDs as real Cisco IOS).
+# Production mode: replace endpoint with "<device-ip>:161" — nothing else
+# in the system changes.
+devices:
+  - {name: R1-Core,   endpoint: 127.0.0.1:1161, kind: router}
+  - {name: R2-Branch, endpoint: 127.0.0.1:1162, kind: router}
+  - {name: R3-HQ,     endpoint: 127.0.0.1:1163, kind: router}
+  - {name: R4-ISP,    endpoint: 127.0.0.1:1164, kind: router}
+  - {name: SW-HQ,     endpoint: 127.0.0.1:1165, kind: switch}
+  - {name: SW-Branch, endpoint: 127.0.0.1:1166, kind: switch}
+
+# ---------------- Telegram notification ----------------
+telegram:
+  token_env: TELEGRAM_BOT_TOKEN     # create your bot with @BotFather
+  chat_id_env: TELEGRAM_CHAT_ID     # your user/group chat id
+  mute_file: bot_state.json         # shared with bot.py /mute command
+
+files:
+  state: state.json
+  alerts: alerts.jsonl

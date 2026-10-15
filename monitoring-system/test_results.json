@@ -1,0 +1,60 @@
+{
+ "phases": {
+  "1.1 BER/ASN.1 + PDU self-test": "PASS",
+  "2.1 all six agents answer GET sysName": "PASS",
+  "2.2 GETNEXT walk returns R3-HQ interface table": "PASS",
+  "2.3 ifInOctets counter is live": "PASS",
+  "3.1 coldStart traps received (one per device)": "PASS",
+  "3.2 CPU WARNING fired (R2 78%)": "PASS",
+  "3.3 CPU CRITICAL fired (R2 93%)": "PASS",
+  "3.4 linkDown TRAP alert (R3 Gi0/0)": "PASS",
+  "3.5 MEMORY warning fired (R1 81%)": "PASS",
+  "3.6 linkUp TRAP recovery alert": "PASS",
+  "3.7 CPU recovery after cooldown": "PASS",
+  "3.8 state.json carries full device snapshot": "PASS",
+  "3.9 no duplicate alerts while state persists": "PASS",
+  "4.1 /help": "PASS",
+  "4.2 /status": "PASS",
+  "4.3 /cpu R2-Branch": "PASS",
+  "4.4 /ifaces R3-HQ": "PASS",
+  "4.5 /alerts": "PASS",
+  "4.6 /mute 5": "PASS",
+  "4.7 /unmute": "PASS",
+  "4.8 unauthorized chat refused": "PASS",
+  "4.9 /mute writes shared mute file": "PASS"
+ },
+ "latencies": [
+  {
+   "incident": "R2 CPU 78% (warning)",
+   "event": 22.5,
+   "detection": 23.875106811523438,
+   "latency_s": 1.38
+  },
+  {
+   "incident": "R2 CPU 93% (critical)",
+   "event": 30.0,
+   "detection": 33.88027477264404,
+   "latency_s": 3.88
+  },
+  {
+   "incident": "R3 Gi0/0 link down (trap)",
+   "event": 40.0,
+   "detection": 40.38496923446655,
+   "latency_s": 0.38
+  },
+  {
+   "incident": "R1 memory 81% (warning)",
+   "event": 57.5,
+   "detection": 58.8928496837616,
+   "latency_s": 1.39
+  },
+  {
+   "incident": "R2 CPU recovery",
+   "event": 82.5,
+   "detection": 83.90662264823914,
+   "latency_s": 1.41
+  }
+ ],
+ "overall": "PASS",
+ "alert_count": 12
+}
